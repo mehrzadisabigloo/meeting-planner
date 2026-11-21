@@ -1,0 +1,22 @@
+<div class="dialog-backdrop" (click)="onBackdropClick($event)">
+  <div
+    class="dialog-box"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="dialogTitleId"
+  >
+    <h2 class="dialog-title" [id]="dialogTitleId">{{ title() }}</h2>
+    <p class="dialog-message">{{ message() }}</p>
+    <div class="dialog-actions">
+      <button #cancelBtn type="button" class="btn btn--ghost" (click)="cancelled.emit()">
+        انصراف
+      </button>
+      <button type="button" class="btn btn--danger" (click)="confirmed.emit()" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner spinner--sm" aria-hidden="true"></span>
+        }
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </div>
+</div>

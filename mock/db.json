@@ -1,0 +1,152 @@
+{
+  "rooms": [
+    {
+      "id": "room-atlas",
+      "name": "Atlas",
+      "capacity": 4
+    },
+    {
+      "id": "room-orion",
+      "name": "Orion",
+      "capacity": 8
+    },
+    {
+      "id": "room-nova",
+      "name": "Nova",
+      "capacity": 12
+    }
+  ],
+  "meetings": [
+    {
+      "id": "meeting-1",
+      "title": "Daily Frontend",
+      "organizer": "Sara Ahmadi",
+      "roomId": "room-atlas",
+      "date": "2026-08-03",
+      "startTime": "09:00",
+      "endTime": "09:30",
+      "attendeesCount": 4
+    },
+    {
+      "id": "meeting-2",
+      "title": "Product Planning",
+      "organizer": "Ali Mohammadi",
+      "roomId": "room-orion",
+      "date": "2026-08-03",
+      "startTime": "09:30",
+      "endTime": "10:45",
+      "attendeesCount": 7
+    },
+    {
+      "id": "meeting-3",
+      "title": "Design Review",
+      "organizer": "Niloofar Karimi",
+      "roomId": "room-atlas",
+      "date": "2026-08-03",
+      "startTime": "10:30",
+      "endTime": "11:15",
+      "attendeesCount": 3
+    },
+    {
+      "id": "meeting-4",
+      "title": "Quarterly Roadmap",
+      "organizer": "Reza Ebrahimi",
+      "roomId": "room-nova",
+      "date": "2026-08-03",
+      "startTime": "11:00",
+      "endTime": "12:30",
+      "attendeesCount": 11
+    },
+    {
+      "id": "meeting-5",
+      "title": "Backend Sync",
+      "organizer": "Amir Hosseini",
+      "roomId": "room-orion",
+      "date": "2026-08-03",
+      "startTime": "11:15",
+      "endTime": "12:00",
+      "attendeesCount": 5
+    },
+    {
+      "id": "meeting-6",
+      "title": "Hiring Interview",
+      "organizer": "Maryam Rahimi",
+      "roomId": "room-atlas",
+      "date": "2026-08-03",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "attendeesCount": 3
+    },
+    {
+      "id": "meeting-7",
+      "title": "Architecture Discussion",
+      "organizer": "Arman Kazemi",
+      "roomId": "room-nova",
+      "date": "2026-08-03",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "attendeesCount": 9
+    },
+    {
+      "id": "meeting-8",
+      "title": "Marketing Weekly",
+      "organizer": "Shadi Moradi",
+      "roomId": "room-orion",
+      "date": "2026-08-04",
+      "startTime": "08:30",
+      "endTime": "09:30",
+      "attendeesCount": 6
+    },
+    {
+      "id": "meeting-9",
+      "title": "Customer Feedback",
+      "organizer": "Pouya Jafari",
+      "roomId": "room-nova",
+      "date": "2026-08-04",
+      "startTime": "10:00",
+      "endTime": "11:00",
+      "attendeesCount": 10
+    },
+    {
+      "id": "meeting-10",
+      "title": "Frontend Retrospective",
+      "organizer": "Sara Ahmadi",
+      "roomId": "room-atlas",
+      "date": "2026-08-04",
+      "startTime": "16:00",
+      "endTime": "17:00",
+      "attendeesCount": 4
+    },
+    {
+      "id": "meeting-11",
+      "title": "Operations Review",
+      "organizer": "Mina Ghasemi",
+      "roomId": "room-orion",
+      "date": "2026-08-04",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "attendeesCount": 8
+    },
+    {
+      "id": "meeting-12",
+      "title": "Mobile UX Workshop",
+      "organizer": "Kian Rostami",
+      "roomId": "room-nova",
+      "date": "2026-08-04",
+      "startTime": "14:30",
+      "endTime": "16:00",
+      "attendeesCount": 12
+    },
+    {
+      "title": "جلسه تست",
+      "organizer": "mehrzad esabigloo",
+      "date": "2026-11-20",
+      "roomId": "room-orion",
+      "attendeesCount": 1,
+      "startTime": "10:00",
+      "endTime": "10:45",
+      "id": "SI1GrdtYA08"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

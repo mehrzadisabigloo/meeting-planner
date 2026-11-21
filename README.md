@@ -1,59 +1,181 @@
-# MeetingPlanner
+# Meeting Room Planner
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.4.
-
-## Development server
-
-To start a local development server, run:
+## نصب و اجرا
 
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### اجرای Mock API
 ```bash
-ng generate component component-name
+npm run api
+# http://localhost:3000
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+### اجرای پروژه Angular
 ```bash
-ng generate --help
+npm start
+# http://localhost:4200
 ```
 
-## Building
-
-To build the project run:
-
+### اجرای تستها
 ```bash
-ng build
+npm test
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## معماری
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
+```
+src/app/
+├── core/
+│   ├── data-access/     # MeetingService, RoomService
+│   ├── interceptors/    # delayInterceptor
+│   └── models/          # models.ts (Room, Meeting, FreeSlot, NewMeeting)
+├── shared/
+│   ├── components/      # ConfirmDialogComponent, ToastComponent
+│   └── utils/           # (legacy — utils moved to feature)
+└── features/
+    └── meetings/
+        ├── components/  # MeetingFormComponent, MeetingCardComponent, RoomGroupComponent
+        ├── pages/       # MeetingsListComponent, MeetingCreateComponent, MeetingEditComponent
+        ├── utils/       # time.utils.ts, free-slots.ts, conflict.ts
+        └── meetings.routes.ts
 ```
 
-## Running end-to-end tests
+**اصل تفکیک:**
+- `data-access`: فقط HTTP — هیچ منطق UI ندارد.
+- `utils`: توابع خالص (pure functions) — هیچ وابستگی Angular ندارند و مستقیماً قابل Unit Test هستند.
+- `components`: UI خالص — state از طریق `input/output` منتقل میشود.
+- `pages`: ترکیب state، routing و data-access.
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
+## مدیریت State
+
+از **Signals** برای state محلی هر صفحه استفاده شده:
+- `signal()` برای مقادیر قابل تغییر (loading, error, meetings, rooms, …)
+- `computed()` برای مقادیر مشتقشده (filteredMeetings, groupedByRoom, hasAnyMeeting, capacityError, selectedRoom, timelineBlocks, formattedTotal, …)
+- `toSignal()` از `@angular/core/rxjs-interop` برای تبدیل Observable فرم به Signal
+
+هیچ global store وجود ندارد — هر صفحه state خودش را مدیریت میکند که برای این مقیاس کافی است.
+
+---
+
+## انتخاب روش فرم: Strictly Typed Reactive Forms
+
+**دلیل انتخاب:**
+- Angular 20 هنوز Signal Forms را در مرحله Developer Preview دارد و API آن ممکن است تغییر کند.
+- Strictly Typed Reactive Forms بالغ، مستند و پشتیبانیشده است.
+- Type safety کامل روی `form.controls` و `form.value` بدون نیاز به cast.
+- Cross-field validation (endTime > startTime) و async conflict check به راحتی پیادهسازی میشود.
+
+**مزایا در این پروژه:**
+- `form.controls.X.hasError()` بدون `any`
+- ترکیب آسان با `toSignal()` برای reactive UI
+
+**محدودیتها:**
+- Boilerplate بیشتر نسبت به Template-driven
+- Signal Forms در آینده ممکن است ergonomics بهتری داشته باشد
+
+---
+
+## Featureهای جدید Angular استفادهشده
+
+| Feature | محل استفاده |
+|---|---|
+| `signal()` / `computed()` | تمام صفحات و components |
+| `input()` / `output()` (Signal Inputs) | MeetingFormComponent, MeetingCardComponent, RoomGroupComponent |
+| `toSignal()` (RxJS-Signals Interop) | MeetingFormComponent |
+| `@if` / `@for` با `track` | تمام templateها |
+| Standalone Components | همه components |
+| Functional HTTP Interceptor | delayInterceptor |
+| Resolver | meetingResolver برای صفحه ویرایش |
+| `CanDeactivateFn` Guard | unsavedChangesGuard |
+| `withComponentInputBinding()` | app.config — resolver data به input میرسد |
+| `takeUntilDestroyed()` | MeetingsListComponent |
+
+---
+
+## قابلیتهای انتخابی پیادهسازیشده
+
+**Angular:**
+- ✅ Signal Inputs (`input()` / `output()`)
+- ✅ RxJS و Signals Interop (`toSignal`)
+- ✅ Resolver برای صفحه ویرایش
+- ✅ Route Guard (unsaved changes)
+
+**محصول:**
+- ✅ **Option A — Timeline:** نمودار زمانی بصری در هر room group
+- ✅ **Option D — نمایش میزان استفاده:** progress bar درصد اشغال هر اتاق
+- ✅ **Option E — هشدار خروج از فرم:** `CanDeactivateFn` guard
+
+---
+
+## مدیریت Loading و Error
+
+- **Loading:** `signal<boolean>` در هر صفحه — spinner نمایش داده میشود
+- **Error:** `signal<string | null>` — پیام خطا با دکمه Retry
+- **Retry:** `Subject<void>` به نام `reload$` — با `reload$.next()` فراخوانی میشود
+- **Delay مصنوعی:** `delayInterceptor` روی تمام درخواستها ۴۰۰-۷۰۰ms تأخیر اعمال میکند
+- **Toast:** پس از حذف موفق/ناموفق نمایش داده میشود
+
+---
+
+## الگوریتم محاسبه Free Slot
+
+**فایل:** `src/app/features/meetings/utils/free-slots.ts`
+
+**مراحل:**
+1. تبدیل هر جلسه به بازه `[startMin, endMin]` — زمانهای نامعتبر skip میشوند
+2. Clip کردن بازهها به ساعات کاری `[480, 1080]`
+3. مرتبسازی بر اساس زمان شروع — **O(n log n)**
+4. Merge کردن بازههای همپوشان — **O(n)**
+5. محاسبه فاصلههای خالی بین بازههای merged — **O(n)**
+
+**پیچیدگی زمانی:** O(n log n) — dominated by sort  
+**پیچیدگی فضایی:** O(n)
+
+**مثال:**
+```
+ورودی: 09:00-10:30, 10:00-11:00, 10:45-12:00
+merged: [09:00-12:00]
+خروجی: [08:00-09:00, 12:00-18:00]
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+---
 
-## Additional Resources
+## فیلتر: Server-side vs Client-side
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+**تصمیم:** فیلتر date و roomId **server-side** (JSON Server query params)، فیلتر جستجوی متنی **client-side**.
+
+**دلیل:**
+- فیلتر date و room payload را کوچک نگه میدارد — مناسب برای رشد داده
+- جستجوی متنی روی نتایج فعلی client-side انجام میشود — بدون round-trip اضافه
+- این ترکیب بهترین تعادل بین performance و UX است
+
+---
+
+## Trade-offها
+
+- **Global Store نداریم:** برای این مقیاس کافی است؛ در صورت رشد، یک `MeetingStore` signal-based اضافه میشود
+- **Conflict check async است:** یک HTTP call اضافه هنگام submit — قابل بهینهسازی با cache
+- **Resolver برای edit:** UX بهتر (loading قبل از ورود به صفحه) اما اگر API کند باشد کاربر منتظر میماند
+
+---
+
+## قسمتهای ناقص
+
+- Room Suggestion (Option B) پیادهسازی نشد
+- Undo حذف (Option C) پیادهسازی نشد
+- تستهای E2E نوشته نشد
+
+---
+
+## در صورت داشتن زمان بیشتر
+
+- پیادهسازی Option B (پیشنهاد اتاق) با استفاده از `calculateFreeSlots`
+- اضافه کردن `linkedSignal` برای sync کردن date فرم با date فیلتر لیست
+- بهبود accessibility با ARIA live regions دقیقتر
+- اضافه کردن `httpResource` برای rooms (چون read-only است)

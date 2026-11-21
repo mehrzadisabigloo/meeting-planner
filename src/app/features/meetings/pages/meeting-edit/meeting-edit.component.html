@@ -1,0 +1,34 @@
+<div class="form-page">
+  <nav class="breadcrumb" aria-label="مسیر">
+    <a routerLink="/meetings">جلسات</a>
+    <span aria-hidden="true">›</span>
+    <span>ویرایش جلسه</span>
+  </nav>
+
+  <h1 class="page-title">ویرایش جلسه</h1>
+
+  <div class="form-card">
+    <app-meeting-form
+      #formRef
+      [rooms]="rooms()"
+      [initialData]="meeting()"
+      [submitting]="submitting()"
+      (formSubmit)="onUpdate($event)"
+      (cancel)="router.navigate(['/meetings'])"
+    />
+  </div>
+
+  @if (errorMsg()) {
+    <app-toast [message]="errorMsg()!" type="error" />
+  }
+
+  @if (showLeaveDialog()) {
+    <app-confirm-dialog
+      title="خروج از صفحه"
+      message="تغییرات ذخیره نشده دارید. آیا میخواهید صفحه را ترک کنید؟"
+      confirmLabel="ترک صفحه"
+      (confirmed)="onLeaveConfirm()"
+      (cancelled)="onLeaveCancel()"
+    />
+  }
+</div>

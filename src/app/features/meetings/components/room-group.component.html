@@ -1,0 +1,96 @@
+<section class="room-group {{ roomColorClass() }}" [attr.aria-labelledby]="'room-' + room().id + '-heading'">
+
+  <!-- Room Header -->
+  <header class="room-group__header">
+    <div class="room-group__info">
+      <h2 id="room-{{ room().id }}-heading" class="room-group__name">{{ room().name }}</h2>
+      <div class="room-group__stats">
+        <span class="stat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          ظرفیت {{ room().capacity }} نفر
+        </span>
+        <span class="stat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          {{ meetings().length }} جلسه
+        </span>
+        @if (meetings().length > 0) {
+          <span class="stat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            {{ formattedTotal() }} اشغال
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Occupancy bar (Option D) -->
+    <div class="room-group__occupancy" aria-label="میزان اشغال: {{ occupancyPercent() }}٪">
+      <div class="occupancy-bar">
+        <div class="occupancy-bar__fill" [style.width.%]="occupancyPercent()"></div>
+      </div>
+      <span class="occupancy-label">{{ occupancyPercent() }}٪</span>
+    </div>
+  </header>
+
+  <!-- Timeline (Option A) -->
+  <div class="timeline" role="img" aria-label="نمودار زمانی جلسات {{ room().name }}">
+    <div class="timeline__track">
+      @for (block of timelineBlocks(); track block.meeting.id) {
+        <div
+          class="timeline__block"
+          [style.left.%]="block.left"
+          [style.width.%]="block.width"
+          [title]="block.meeting.title + ' (' + block.meeting.startTime + '–' + block.meeting.endTime + ')'"
+          [class.timeline__block--short]="block.width < 8"
+        ></div>
+      }
+    </div>
+    <div class="timeline__labels" aria-hidden="true">
+      <span>۰۸:۰۰</span>
+      <span>۱۳:۰۰</span>
+      <span>۱۸:۰۰</span>
+    </div>
+  </div>
+
+  <!-- Next free slot -->
+  @if (nextFreeSlot()) {
+    <p class="free-slot-hint">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      نزدیکترین بازه آزاد (≥۳۰ دقیقه):
+      <strong>{{ nextFreeSlot()!.startTime }} – {{ nextFreeSlot()!.endTime }}</strong>
+    </p>
+  } @else if (meetings().length > 0) {
+    <p class="free-slot-hint free-slot-hint--none">بازه آزاد ۳۰ دقیقهای وجود ندارد.</p>
+  }
+
+  <!-- Meeting list -->
+  @if (meetings().length === 0) {
+    <p class="room-group__empty">جلسهای برای این اتاق ثبت نشده است.</p>
+  } @else {
+    <ul class="meeting-list" aria-label="جلسات {{ room().name }}">
+      @for (meeting of meetings(); track meeting.id) {
+        <li>
+          <app-meeting-card
+            [meeting]="meeting"
+            [deleting]="deletingId() === meeting.id"
+            (edit)="editMeeting.emit($event)"
+            (delete)="deleteMeeting.emit($event)"
+          />
+        </li>
+      }
+    </ul>
+  }
+
+</section>

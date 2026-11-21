@@ -1,0 +1,119 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="meeting-form" aria-label="فرم جلسه">
+
+  <!-- Title -->
+  <div class="field" [class.field--error]="isTouched('title') && form.controls.title.invalid">
+    <label for="title" class="field__label">عنوان جلسه <span aria-hidden="true">*</span></label>
+    <input id="title" type="text" formControlName="title" class="field__input"
+           autocomplete="off" placeholder="مثلاً: جلسه هفتگی تیم" />
+    @if (hasError('title', 'required') || hasError('title', 'blank')) {
+      <p class="field__error" role="alert">عنوان جلسه الزامی است.</p>
+    }
+  </div>
+
+  <!-- Organizer -->
+  <div class="field" [class.field--error]="isTouched('organizer') && form.controls.organizer.invalid">
+    <label for="organizer" class="field__label">برگزارکننده <span aria-hidden="true">*</span></label>
+    <input id="organizer" type="text" formControlName="organizer" class="field__input"
+           autocomplete="name" placeholder="نام و نام خانوادگی" />
+    @if (hasError('organizer', 'required') || hasError('organizer', 'blank')) {
+      <p class="field__error" role="alert">نام برگزارکننده الزامی است.</p>
+    }
+  </div>
+
+  <!-- Date -->
+  <div class="field" [class.field--error]="isTouched('date') && form.controls.date.invalid">
+    <label for="date" class="field__label">تاریخ <span aria-hidden="true">*</span></label>
+    <input id="date" type="date" formControlName="date" class="field__input" />
+    @if (hasError('date', 'required')) {
+      <p class="field__error" role="alert">تاریخ الزامی است.</p>
+    }
+  </div>
+
+  <!-- Room -->
+  <div class="field" [class.field--error]="isTouched('roomId') && form.controls.roomId.invalid">
+    <label for="roomId" class="field__label">اتاق <span aria-hidden="true">*</span></label>
+    <select id="roomId" formControlName="roomId" class="field__input">
+      <option value="" disabled>انتخاب اتاق…</option>
+      @for (room of rooms(); track room.id) {
+        <option [value]="room.id">{{ room.name }} (ظرفیت: {{ room.capacity }} نفر)</option>
+      }
+    </select>
+    @if (hasError('roomId', 'required')) {
+      <p class="field__error" role="alert">انتخاب اتاق الزامی است.</p>
+    }
+  </div>
+
+  <!-- Attendees -->
+  <div class="field" [class.field--error]="(isTouched('attendeesCount') && form.controls.attendeesCount.invalid) || !!capacityError()">
+    <label for="attendeesCount" class="field__label">تعداد شرکتکنندگان <span aria-hidden="true">*</span></label>
+    <input id="attendeesCount" type="number" formControlName="attendeesCount"
+           class="field__input" min="1" />
+    @if (hasError('attendeesCount', 'required') || hasError('attendeesCount', 'min')) {
+      <p class="field__error" role="alert">تعداد شرکتکنندگان باید حداقل ۱ نفر باشد.</p>
+    }
+    @if (capacityError()) {
+      <p class="field__error" role="alert">{{ capacityError() }}</p>
+    }
+  </div>
+
+  <!-- Start / End Time -->
+  <div class="field-row">
+    <div class="field" [class.field--error]="isTouched('startTime') && form.controls.startTime.invalid">
+      <label for="startTime" class="field__label">ساعت شروع <span aria-hidden="true">*</span></label>
+      <select id="startTime" formControlName="startTime" class="field__input">
+        <option value="" disabled>انتخاب…</option>
+        @for (t of timeOptions; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+      @if (hasError('startTime', 'required')) {
+        <p class="field__error" role="alert">ساعت شروع الزامی است.</p>
+      }
+      @if (hasError('startTime', 'outsideHours')) {
+        <p class="field__error" role="alert">ساعت شروع باید بین ۰۸:۰۰ و ۱۸:۰۰ باشد.</p>
+      }
+    </div>
+
+    <div class="field" [class.field--error]="isTouched('endTime') && form.controls.endTime.invalid">
+      <label for="endTime" class="field__label">ساعت پایان <span aria-hidden="true">*</span></label>
+      <select id="endTime" formControlName="endTime" class="field__input">
+        <option value="" disabled>انتخاب…</option>
+        @for (t of timeOptions; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+      @if (hasError('endTime', 'required')) {
+        <p class="field__error" role="alert">ساعت پایان الزامی است.</p>
+      }
+      @if (hasError('endTime', 'endBeforeStart')) {
+        <p class="field__error" role="alert">ساعت پایان باید بعد از ساعت شروع باشد.</p>
+      }
+      @if (hasError('endTime', 'outsideHours')) {
+        <p class="field__error" role="alert">ساعت پایان باید بین ۰۸:۰۰ و ۱۸:۰۰ باشد.</p>
+      }
+    </div>
+  </div>
+
+  <!-- Conflict error -->
+  @if (conflictError()) {
+    <div class="form-error-banner" role="alert">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      {{ conflictError() }}
+    </div>
+  }
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button type="button" class="btn btn--ghost" (click)="cancel.emit()">انصراف</button>
+    <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+      @if (submitting()) {
+        <span class="spinner spinner--sm" aria-hidden="true"></span>
+      }
+      {{ initialData() ? 'ذخیره تغییرات' : 'ایجاد جلسه' }}
+    </button>
+  </div>
+
+</form>

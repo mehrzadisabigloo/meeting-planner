@@ -1,0 +1,147 @@
+<div class="list-page">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <h1 class="page-title">جلسات</h1>
+    <a routerLink="/meetings/new" class="btn btn--primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      جلسه جدید
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" role="search" aria-label="فیلتر جلسات">
+    <div class="filter-group">
+      <label for="date-filter" class="filter-label">تاریخ</label>
+      <input
+        id="date-filter"
+        type="date"
+        class="filter-input"
+        [value]="selectedDate()"
+        (change)="onInputChange($event, 'date')"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="room-filter" class="filter-label">اتاق</label>
+      <select
+        id="room-filter"
+        class="filter-input"
+        [value]="selectedRoomId()"
+        (change)="onInputChange($event, 'room')"
+      >
+        <option value="">همه اتاقها</option>
+        @for (room of rooms(); track room.id) {
+          <option [value]="room.id">{{ room.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group filter-group--search">
+      <label for="search-filter" class="filter-label">جستجو</label>
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input
+          id="search-filter"
+          type="search"
+          class="filter-input filter-input--search"
+          placeholder="عنوان یا برگزارکننده…"
+          [value]="searchQuery()"
+          (input)="onInputChange($event, 'search')"
+        />
+      </div>
+    </div>
+
+    @if (hasFilterActive()) {
+      <button type="button" class="btn btn--ghost btn--sm clear-btn" (click)="clearFilters()">
+        پاک کردن فیلترها
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="state-box" aria-live="polite" aria-busy="true">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>در حال بارگذاری…</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!loading() && error()) {
+    <div class="state-box state-box--error" role="alert">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn btn--primary" (click)="retry()">تلاش مجدد</button>
+    </div>
+  }
+
+  <!-- Empty: no meetings on this day -->
+  @if (!loading() && !error() && !hasAnyMeeting() && !hasFilterActive()) {
+    <div class="state-box" role="status">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <p>هیچ جلسهای برای این روز ثبت نشده است.</p>
+      <a routerLink="/meetings/new" class="btn btn--primary">ایجاد اولین جلسه</a>
+    </div>
+  }
+
+  <!-- Empty: no results for search/filter -->
+  @if (!loading() && !error() && !hasAnyMeeting() && hasFilterActive()) {
+    <div class="state-box" role="status">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
+        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <p>نتیجهای برای جستجو یا فیلتر انتخابشده یافت نشد.</p>
+      <button type="button" class="btn btn--ghost" (click)="clearFilters()">پاک کردن فیلترها</button>
+    </div>
+  }
+
+  <!-- Room groups -->
+  @if (!loading() && !error()) {
+    <div class="room-groups">
+      @for (group of groupedByRoom(); track group.room.id) {
+        @if (!selectedRoomId() || group.room.id === selectedRoomId()) {
+          <app-room-group
+            [room]="group.room"
+            [meetings]="group.meetings"
+            [nextFreeSlot]="group.freeSlot"
+            [deletingId]="deletingId()"
+            [occupancyPercent]="group.occupancyPercent"
+            (editMeeting)="onEditMeeting($event)"
+            (deleteMeeting)="onDeleteRequest($event)"
+          />
+        }
+      }
+    </div>
+  }
+
+</div>
+
+<!-- Confirm delete dialog -->
+@if (confirmTarget()) {
+  <app-confirm-dialog
+    title="حذف جلسه"
+    [message]="'آیا از حذف جلسه «' + confirmTarget()!.title + '» مطمئن هستید؟'"
+    confirmLabel="حذف"
+    [loading]="deletingId() !== null"
+    (confirmed)="onDeleteConfirm()"
+    (cancelled)="onDeleteCancel()"
+  />
+}
+
+<!-- Toast -->
+@if (toast()) {
+  <app-toast [message]="toast()!.message" [type]="toast()!.type" />
+}
