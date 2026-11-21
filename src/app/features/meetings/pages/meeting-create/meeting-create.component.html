@@ -1,4 +1,4 @@
-<div class="form-page">
+<main class="form-page">
   <nav class="breadcrumb" aria-label="مسیر">
     <a routerLink="/meetings">جلسات</a>
     <span aria-hidden="true">›</span>
@@ -7,16 +7,16 @@
 
   <h1 class="page-title">ایجاد جلسه جدید</h1>
 
-  <div class="form-card">
+  <section class="form-card">
     <app-meeting-form
       [rooms]="rooms()"
       [submitting]="submitting()"
       (formSubmit)="onCreate($event)"
       (cancel)="router.navigate(['/meetings'])"
     />
-  </div>
+  </section>
 
   @if (errorMsg()) {
     <app-toast [message]="errorMsg()!" type="error" />
   }
-</div>
+</main>

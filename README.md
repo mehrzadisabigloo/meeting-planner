@@ -77,8 +77,6 @@ src/app/
 
 **محدودیتها:**
 - Boilerplate بیشتر نسبت به Template-driven
-- Signal Forms در آینده ممکن است ergonomics بهتری داشته باشد
-
 ---
 
 ## Featureهای جدید Angular استفادهشده

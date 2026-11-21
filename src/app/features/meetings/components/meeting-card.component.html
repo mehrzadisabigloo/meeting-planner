@@ -23,7 +23,7 @@
     </p>
   </div>
 
-  <div class="meeting-card__actions">
+  <footer class="meeting-card__actions">
     <button type="button" class="btn-icon" aria-label="ویرایش جلسه {{ meeting().title }}"
             (click)="edit.emit(meeting())" [disabled]="deleting()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -44,5 +44,5 @@
         </svg>
       }
     </button>
-  </div>
+  </footer>
 </article>

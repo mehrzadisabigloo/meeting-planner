@@ -1,7 +1,7 @@
-<div class="list-page">
+<main class="list-page">
 
   <!-- Page header -->
-  <div class="page-header">
+  <header class="page-header">
     <h1 class="page-title">جلسات</h1>
     <a routerLink="/meetings/new" class="btn btn--primary">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -9,10 +9,10 @@
       </svg>
       جلسه جدید
     </a>
-  </div>
+  </header>
 
   <!-- Filters -->
-  <div class="filters" role="search" aria-label="فیلتر جلسات">
+  <form class="filters" role="search" aria-label="فیلتر جلسات">
     <div class="filter-group">
       <label for="date-filter" class="filter-label">تاریخ</label>
       <input
@@ -62,7 +62,7 @@
         پاک کردن فیلترها
       </button>
     }
-  </div>
+  </form>
 
   <!-- Loading -->
   @if (loading()) {
@@ -110,7 +110,7 @@
 
   <!-- Room groups -->
   @if (!loading() && !error()) {
-    <div class="room-groups">
+    <section class="room-groups" aria-label="اتاق‌های جلسه">
       @for (group of groupedByRoom(); track group.room.id) {
         @if (!selectedRoomId() || group.room.id === selectedRoomId()) {
           <app-room-group
@@ -124,10 +124,10 @@
           />
         }
       }
-    </div>
+    </section>
   }
 
-</div>
+</main>
 
 <!-- Confirm delete dialog -->
 @if (confirmTarget()) {

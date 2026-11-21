@@ -96,17 +96,17 @@
 
   <!-- Conflict error -->
   @if (conflictError()) {
-    <div class="form-error-banner" role="alert">
+    <p class="form-error-banner" role="alert">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
         <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
       {{ conflictError() }}
-    </div>
+    </p>
   }
 
   <!-- Actions -->
-  <div class="form-actions">
+  <footer class="form-actions">
     <button type="button" class="btn btn--ghost" (click)="cancel.emit()">انصراف</button>
     <button type="submit" class="btn btn--primary" [disabled]="submitting()">
       @if (submitting()) {
@@ -114,6 +114,6 @@
       }
       {{ initialData() ? 'ذخیره تغییرات' : 'ایجاد جلسه' }}
     </button>
-  </div>
+  </footer>
 
 </form>

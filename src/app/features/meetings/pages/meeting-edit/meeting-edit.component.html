@@ -1,4 +1,4 @@
-<div class="form-page">
+<main class="form-page">
   <nav class="breadcrumb" aria-label="مسیر">
     <a routerLink="/meetings">جلسات</a>
     <span aria-hidden="true">›</span>
@@ -7,7 +7,7 @@
 
   <h1 class="page-title">ویرایش جلسه</h1>
 
-  <div class="form-card">
+  <section class="form-card">
     <app-meeting-form
       #formRef
       [rooms]="rooms()"
@@ -16,7 +16,7 @@
       (formSubmit)="onUpdate($event)"
       (cancel)="router.navigate(['/meetings'])"
     />
-  </div>
+  </section>
 
   @if (errorMsg()) {
     <app-toast [message]="errorMsg()!" type="error" />
@@ -31,4 +31,4 @@
       (cancelled)="onLeaveCancel()"
     />
   }
-</div>
+</main>
